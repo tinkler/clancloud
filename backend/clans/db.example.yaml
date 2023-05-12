@@ -1,0 +1,2 @@
+# 本地
+dsn: host=localhost user=clans password=clans dbname=clans port=5432 sslmode=disable TimeZone=Asia/Shanghai
