@@ -1,6 +1,4 @@
-/db.yaml
 /.env
-/db.yaml
 /clans
 *.exe
 /static/member/*

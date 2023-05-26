@@ -11,6 +11,8 @@ class Service {
 class ServicePage extends StatefulWidget {
   const ServicePage({super.key});
 
+  static const String routeName = '/service';
+
   @override
   State<ServicePage> createState() => _ServicePageState();
 }

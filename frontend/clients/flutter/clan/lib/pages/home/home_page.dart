@@ -1,4 +1,6 @@
+import 'package:Clan/pages/service/me_page.dart';
 import 'package:Clan/pages/service/service_page.dart';
+import 'package:Clan/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 
 class HomeTabItem {
@@ -10,6 +12,8 @@ class HomeTabItem {
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
+  static const String routeName = '/home';
+
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -20,7 +24,8 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   static final List<HomeTabItem> _list = [
     HomeTabItem(icon: const Icon(Icons.home), label: '首页'),
-    HomeTabItem(icon: const Icon(Icons.search), label: '服务')
+    HomeTabItem(icon: const Icon(Icons.search), label: '服务'),
+    HomeTabItem(icon: const Icon(Icons.person_rounded), label: '我的')
   ];
 
   @override
@@ -30,6 +35,8 @@ class _HomePageState extends State<HomePage> {
         title: Text(_list[_selectedIndex].label),
       ),
       body: Container(
+        width: double.infinity,
+        height: double.infinity,
         decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/images/bgImage.png'),
@@ -44,6 +51,7 @@ class _HomePageState extends State<HomePage> {
               scrollDirection: Axis.vertical,
             ),
             ServicePage(),
+            MePage()
           ],
         ),
       ),

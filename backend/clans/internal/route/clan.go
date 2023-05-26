@@ -5,11 +5,11 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/tinkler/mqttadmin/pkg/jsonz/sjson"
-	"github.com/tinkler/clancloud/clans/internal/model/clan"
+	"github.com/tinkler/clancloud/backend/clans/internal/model/clan"
 	"github.com/tinkler/mqttadmin/pkg/status"
 )
 
-func RoutesClan(m *chi.Mux) {
+func RoutesClan(m chi.Router) {
 	m.Route("/clan", func(r chi.Router) {
 		
 		r.Post("/member/get-by-id", func(w http.ResponseWriter, r *http.Request) {
@@ -44,6 +44,42 @@ func RoutesClan(m *chi.Mux) {
 			}
 			res := Res[*clan.Member,[]*clan.Member]{Data:m.Data}
 			res.Resp, err = m.Data.SearchMember(r.Context(), m.Args.Match, )
+			
+			if status.HttpError(w, err) {
+				return
+			}
+			if sjson.HttpWrite(w, res) {
+				return
+			}
+
+		})
+		r.Post("/user/save", func(w http.ResponseWriter, r *http.Request) {
+			m := Model[*clan.User, any]{}
+			err := sjson.Bind(r, &m)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			res := Res[*clan.User,any]{Data:m.Data}
+			err = m.Data.Save(r.Context())
+			
+			if status.HttpError(w, err) {
+				return
+			}
+			if sjson.HttpWrite(w, res) {
+				return
+			}
+
+		})
+		r.Post("/user/load", func(w http.ResponseWriter, r *http.Request) {
+			m := Model[*clan.User, any]{}
+			err := sjson.Bind(r, &m)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			res := Res[*clan.User,any]{Data:m.Data}
+			err = m.Data.Load(r.Context())
 			
 			if status.HttpError(w, err) {
 				return

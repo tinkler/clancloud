@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clans
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: clans
+  template:
+    metadata:
+      labels:
+        app: clans
+    spec:
+      containers:
+      - name: clans
+        image: localhost:5000/clans:v0.0.1
+        env:
+        - name: DB_DSN
+          value: "host=172.12.1.12 user=clans password=72508156 dbname=clans port=5432 sslmode=disable TimeZone=Asia/Shanghai"  # 设置 DSN 环境变量
+        - name: SERVER_HOST
+          value: "0.0.0.0"
+        - name: SERVER_PORT
+          value: "11081"
+        - name: SERVER_READ_TIMEOUT
+          value: "5"
+        - name: SERVER_WRITE_TIMEOUT
+          value: "12"
+        - name: SERVER_IDLE_TIMEOUT
+          value: "120"
+        ports:
+        - containerPort: 11081
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: clans
+spec:
+  selector:
+    app: clans
+  ports:
+  - name: http
+    port: 11081
+    targetPort: 11081
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: clans
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - mqtt-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /clans
+    - uri:
+        prefix: /static
+    route:
+    - destination:
+        host: clans
+        port:
+          number: 11081

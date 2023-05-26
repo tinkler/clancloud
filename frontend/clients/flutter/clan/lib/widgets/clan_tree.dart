@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:Clan/api/clans/model/clan.dart';
+import 'package:Clan/api/model/clans/clan.dart';
 import 'package:Clan/api/http_config.dart';
 import 'package:flutter/material.dart';
 

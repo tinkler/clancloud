@@ -1,6 +1,7 @@
-import 'package:Clan/api/clans/model/clan.dart';
+import 'package:Clan/api/model/clans/clan.dart';
 import 'package:Clan/pages/member/member_search.dart';
 import 'package:Clan/api/http.dart';
+import 'package:Clan/providers/user_provider.dart';
 import 'package:Clan/widgets/clan_tree.dart';
 import 'package:flutter/material.dart';
 
@@ -8,6 +9,8 @@ import '../../member/member_view.dart';
 
 class DiagramPage extends StatefulWidget {
   const DiagramPage({super.key});
+
+  static const String routeName = '/service/diagram';
 
   @override
   State<DiagramPage> createState() => _DiagramPageState();
@@ -58,28 +61,35 @@ class _DiagramPageState extends State<DiagramPage> {
                     initialData: Member()..name = '中国',
                     future: _getMember(),
                     builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return ClanTree(
-                          snapshot.data!,
-                          onTap: (m) async {
-                            int? id = await Navigator.of(context).push<int>(
-                                MaterialPageRoute(builder: (context) {
-                              return MemberViewPage(member: m);
-                            }));
-                            if (id != null) {
-                              if (id == 0) {
-                                id = rootMemberId;
-                              }
-                              setState(() {
-                                _currentMemberId = id!;
-                              });
-                            }
-                          },
-                        );
-                      } else if (snapshot.hasError) {
-                        return Text('${snapshot.error}');
-                      } else {
-                        return const CircularProgressIndicator();
+                      switch (snapshot.connectionState) {
+                        case ConnectionState.waiting:
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        default:
+                          if (snapshot.hasData) {
+                            return ClanTree(
+                              snapshot.data!,
+                              onTap: (m) async {
+                                int? id = await Navigator.of(context).push<int>(
+                                    MaterialPageRoute(builder: (context) {
+                                  return MemberViewPage(member: m);
+                                }));
+                                if (id != null) {
+                                  if (id == 0) {
+                                    id = rootMemberId;
+                                  }
+                                  setState(() {
+                                    _currentMemberId = id!;
+                                  });
+                                }
+                              },
+                            );
+                          } else if (snapshot.hasError) {
+                            return Text('${snapshot.error}');
+                          } else {
+                            return const CircularProgressIndicator();
+                          }
                       }
                     })),
           ),

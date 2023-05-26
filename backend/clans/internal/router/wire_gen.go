@@ -9,21 +9,15 @@ package router
 import (
 	"github.com/google/wire"
 	"github.com/tinkler/mqttadmin/pkg/conf"
-	"github.com/tinkler/mqttadmin/pkg/db"
 	"net/http"
 )
 
 // Injectors from wire.go:
 
-// InitRouter 初始化路由
-func InitRouter() (*http.Server, error) {
+// NewServer 新建服务
+func NewServer() (*http.Server, error) {
 	confConf := conf.NewConf()
-	config := conf.NewGormConfig()
-	gormDB, err := db.NewDB(confConf, config)
-	if err != nil {
-		return nil, err
-	}
-	server, err := NewRouter(confConf, gormDB)
+	server, err := NewRouter(confConf)
 	if err != nil {
 		return nil, err
 	}
@@ -34,5 +28,4 @@ func InitRouter() (*http.Server, error) {
 
 var (
 	confSet = wire.NewSet(conf.NewGormConfig, conf.NewConf)
-	dbSet   = wire.NewSet(db.NewDB)
 )

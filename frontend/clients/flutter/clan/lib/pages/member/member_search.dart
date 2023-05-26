@@ -1,4 +1,4 @@
-import 'package:Clan/api/clans/model/clan.dart';
+import 'package:Clan/api/model/clans/clan.dart';
 import 'package:Clan/api/http.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';

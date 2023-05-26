@@ -1,6 +1,8 @@
 import 'dart:async';
 
-import 'package:Clan/api/clans/model/clan.dart';
+import 'package:Clan/api/model/clans/clan.dart';
+import 'package:Clan/pages/member/member_detail.dart';
+import 'package:Clan/providers/user_provider.dart';
 import 'package:Clan/utils/toast.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -16,11 +18,21 @@ class MemberViewPage extends StatefulWidget {
 class _MemberViewPageState extends State<MemberViewPage> {
   late FToast fToast;
 
+  bool _canEdit = false;
+
+  _checkPermission() async {
+    var canEdit = await UserProvider.of(context).canEdit(widget.member.id);
+    setState(() {
+      _canEdit = canEdit;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     fToast = FToast();
     fToast.init(context);
+    _checkPermission();
   }
 
   _showToast(String msg) {
@@ -54,6 +66,17 @@ class _MemberViewPageState extends State<MemberViewPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('族人信息'),
+        actions: [
+          if (_canEdit)
+            IconButton(
+                onPressed: () {
+                  Navigator.of(context).pushNamed(
+                    MemberDetailPage.routeName,
+                    arguments: widget.member,
+                  );
+                },
+                icon: const Icon(Icons.edit))
+        ],
       ),
       body: Container(
         decoration: const BoxDecoration(
@@ -103,7 +126,13 @@ class _MemberViewPageState extends State<MemberViewPage> {
                 _Button(
                     buttonText: '详细信息',
                     onPressed: () {
-                      _showToast('未登录');
+                      if (UserProvider.of(context).canAccess4()) {
+                        Navigator.of(context).pushNamed(
+                            MemberDetailPage.routeName,
+                            arguments: widget.member);
+                      } else {
+                        _showToast('请先绑定族谱');
+                      }
                     }),
                 _Button(
                     buttonText: '追溯定位',
