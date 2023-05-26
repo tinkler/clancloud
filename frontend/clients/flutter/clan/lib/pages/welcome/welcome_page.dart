@@ -97,6 +97,8 @@ class _WelcomePageState extends State<WelcomePage> {
   toHome() {
     UserProvider.of(context).setSignedIn(true).then((value) {
       Navigator.pushReplacementNamed(context, HomePage.routeName);
+    }, onError: (e) {
+      toSigin();
     });
   }
 

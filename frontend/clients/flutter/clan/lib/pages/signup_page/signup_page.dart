@@ -6,6 +6,7 @@ import 'package:hive_flutter/adapters.dart';
 
 import '../../api/model/mqtt/user.dart';
 import '../../const/hive.dart';
+import '../../providers/user_provider.dart';
 import '../home/home_page.dart';
 
 class SignupPage extends StatelessWidget {
@@ -67,10 +68,9 @@ class _SignupFormState extends State<_SignupForm> {
       try {
         var res = await auth.signup();
         if (res != null) {
-          await Hive.openBox<String>(boxSys).then((value) {
-            value.put(boxValSysToken, res.token);
-            value.put(boxValSysDeviceToken, res.deviceToken);
-          });
+          var box = await Hive.openBox<String>(boxSys);
+          await box.put(boxValSysToken, res.token);
+          await box.put(boxValSysDeviceToken, res.deviceToken);
           toHome();
           return;
         }
@@ -80,7 +80,11 @@ class _SignupFormState extends State<_SignupForm> {
     }
   }
 
-  void toHome() => Navigator.pushReplacementNamed(context, HomePage.routeName);
+  void toHome() {
+    UserProvider.of(context).setSignedIn(true).then((value) {
+      Navigator.pushReplacementNamed(context, HomePage.routeName);
+    });
+  }
 
   @override
   void initState() {
