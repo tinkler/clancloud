@@ -28,7 +28,7 @@ func (m *User) Save(ctx context.Context) error {
 	if m.ID == "" {
 		m.ID = acl.GetUserID(ctx)
 	}
-	se := db.DB().First(&User{}, m.ID)
+	se := db.DB().First(&User{ID: m.ID})
 	if se.Error != nil {
 		if errors.Is(se.Error, gorm.ErrRecordNotFound) {
 			return m.Create()

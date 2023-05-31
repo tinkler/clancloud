@@ -75,11 +75,11 @@ class _MePageState extends State<MePage> {
                             title: const Text('查看我的族谱'),
                             trailing: const Icon(Icons.arrow_forward_ios),
                             onTap: () async {
-                              var changed = await Navigator.of(context).push(
-                                  MaterialPageRoute<bool>(builder: (context) {
-                                return MyClanTree(
-                                    member: Member()..id = model.user.memberId);
-                              }));
+                              var changed =
+                                  await Navigator.of(context).pushNamed<bool>(
+                                MyClanTree.routeName,
+                                arguments: Member()..id = model.user.memberId,
+                              );
                               if (changed == true) {
                                 model.load();
                               }

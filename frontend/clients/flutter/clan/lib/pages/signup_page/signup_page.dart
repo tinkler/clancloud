@@ -16,18 +16,60 @@ class SignupPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        width: 450,
-        decoration: const BoxDecoration(
-            image: DecorationImage(
-          alignment: Alignment.topLeft,
-          image: AssetImage('assets/images/signup_bg.png'),
-        )),
+    return const Scaffold(
+      body: _SignupWidget(),
+    );
+  }
+}
+
+class _SignupWidget extends StatefulWidget {
+  const _SignupWidget({super.key});
+
+  @override
+  State<_SignupWidget> createState() => __SignupWidgetState();
+}
+
+class __SignupWidgetState extends State<_SignupWidget>
+    with WidgetsBindingObserver {
+  bool _keyboardVisible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this); //销毁观察者
+    super.dispose();
+  }
+
+  @override
+  void didChangeMetrics() {
+    setState(() {
+      _keyboardVisible = View.of(context).viewInsets.bottom > 0.0;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 450,
+      decoration: BoxDecoration(
+          image: _keyboardVisible
+              ? null
+              : const DecorationImage(
+                  alignment: Alignment.topLeft,
+                  image: AssetImage('assets/images/signup_bg.png'),
+                )),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
         child: Column(
           children: [
-            const SizedBox(
-              height: 140,
+            SizedBox(
+              height:
+                  _keyboardVisible ? MediaQuery.of(context).padding.top : 140,
             ),
             Text(
               '注册',
@@ -59,9 +101,13 @@ class _SignupFormState extends State<_SignupForm> {
   bool _isAgree = true;
   bool _isObscure = true;
   bool _isObscureConfirm = true;
+  bool _loading = false;
 
   Future<void> _submitForm() async {
-    if (_formKey.currentState!.validate()) {
+    if (_formKey.currentState!.validate() && _isAgree && !_loading) {
+      setState(() {
+        _loading = true;
+      });
       var auth = Auth()
         ..username = _username
         ..password = _password;
@@ -77,6 +123,9 @@ class _SignupFormState extends State<_SignupForm> {
       } on Exception catch (e) {
         fToast.showCustomToast(e.toString());
       }
+      setState(() {
+        _loading = false;
+      });
     }
   }
 
@@ -343,12 +392,24 @@ class _SignupFormState extends State<_SignupForm> {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _submitForm,
-              child: const Row(
+              onPressed: _loading ? null : _submitForm,
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('注册'),
-                  SizedBox(width: 16),
+                  _loading
+                      ? const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8.0),
+                          child: SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          ),
+                        )
+                      : Container(),
+                  const Text('注册'),
                 ],
               ),
             ),

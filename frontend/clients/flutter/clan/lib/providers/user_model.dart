@@ -21,7 +21,7 @@ class UserModel extends ChangeNotifier {
   final _allowedRoles2 = {'clans_level_2', 'admin'};
   final _allowedRoles1 = {'admin'};
 
-  Set<int> _canEditList = {};
+  final Set<int> _canEditList = {};
 
   Future<void> load() async {
     if (!_signedIn) {

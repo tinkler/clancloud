@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:Clan/providers/user_provider.dart';
+import 'package:Clan/widgets/agreement_widget.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -57,6 +59,17 @@ class _WelcomePageState extends State<WelcomePage> {
     _updateConnectionStatus(result);
   }
 
+  _showDialog(bool toSignin) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return _AgreementDialog(
+          toSignin: toSignin,
+        );
+      },
+    );
+  }
+
   void _updateConnectionStatus(ConnectivityResult result) async {
     if (_loading) {
       return;
@@ -84,19 +97,28 @@ class _WelcomePageState extends State<WelcomePage> {
           value.put(boxValSysDeviceToken, auth.deviceToken);
         });
         _loading = false;
-        toHome();
+        if (Platform.isAndroid || Platform.isIOS) {
+          _showDialog(false);
+        } else {
+          toHome();
+        }
         return;
       } catch (e) {
         print(e);
       }
     }
     _loading = false;
-    toSigin();
+    if (Platform.isAndroid || Platform.isIOS) {
+      _showDialog(true);
+    } else {
+      toSigin();
+    }
   }
 
   toHome() {
     UserProvider.of(context).setSignedIn(true).then((value) {
-      Navigator.pushReplacementNamed(context, HomePage.routeName);
+      Navigator.of(context)
+          .pushNamedAndRemoveUntil(HomePage.routeName, (route) => false);
     }, onError: (e) {
       toSigin();
     });
@@ -104,7 +126,8 @@ class _WelcomePageState extends State<WelcomePage> {
 
   toSigin() {
     UserProvider.of(context).setSignedIn(false).then((value) {
-      Navigator.pushReplacementNamed(context, SigninPage.routeName);
+      Navigator.pushNamedAndRemoveUntil(
+          context, SigninPage.routeName, (route) => false);
     });
   }
 
@@ -137,5 +160,62 @@ class _WelcomePageState extends State<WelcomePage> {
             ],
           )),
     ));
+  }
+}
+
+class _AgreementDialog extends StatelessWidget {
+  final bool toSignin;
+  const _AgreementDialog({this.toSignin = false});
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text("用户协议及隐私政策"),
+      content: SingleChildScrollView(
+        child: ListBody(
+          children: <Widget>[
+            GestureDetector(
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return AgreementWidget();
+                }));
+              },
+              child: const Text("请仔细阅读《中华覃氏用户协议及隐私政策》"),
+            ),
+          ],
+        ),
+      ),
+      actions: <Widget>[
+        TextButton(
+          child: const Text("同意"),
+          onPressed: () {
+            if (toSignin) {
+              UserProvider.of(context).setSignedIn(false).then((value) {
+                Navigator.pushNamedAndRemoveUntil(
+                    context, SigninPage.routeName, (route) => false);
+              });
+              return;
+            }
+            UserProvider.of(context).setSignedIn(true).then((value) {
+              Navigator.pushNamedAndRemoveUntil(
+                  context, HomePage.routeName, (route) => false);
+            }, onError: (e) {
+              UserProvider.of(context).setSignedIn(false).then((value) {
+                Navigator.pushNamedAndRemoveUntil(
+                    context, SigninPage.routeName, (route) => false);
+              });
+            });
+          },
+        ),
+        TextButton(
+          child: const Text(
+            "不同意",
+            style: TextStyle(color: Colors.grey),
+          ),
+          onPressed: () {
+            SystemNavigator.pop();
+          },
+        ),
+      ],
+    );
   }
 }

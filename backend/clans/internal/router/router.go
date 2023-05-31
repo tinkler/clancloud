@@ -15,6 +15,7 @@ func GetRoutes(m *chi.Mux) {
 	m.Route("/clans", func(r chi.Router) {
 		r.Use(acl.WrapAuth(acl.AuthConfig{}))
 		route.RoutesClan(r)
+		route.RoutesClanExtra(r)
 	})
 }
 

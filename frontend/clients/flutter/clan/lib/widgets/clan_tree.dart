@@ -191,8 +191,9 @@ class _ClanTreeState extends State<ClanTree> {
                     color: m.sex == 2
                         ? const Color(0xffFF9966)
                         : const Color(0xff6699CC),
-                    child: m.profilePicture != ''
-                        ? Image.network(basePicUrl + m.profilePicture,
+                    child: m.memberProfile != null &&
+                            m.memberProfile!.picPath != ''
+                        ? Image.network(basePicUrl + m.memberProfile!.picPath,
                             fit: BoxFit.cover)
                         : Icon(
                             Icons.account_circle,

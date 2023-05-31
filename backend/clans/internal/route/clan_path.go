@@ -3,9 +3,13 @@ package route
 
 func init() {
 	
-	routePathMap["/clan/member/get-by-id"] = "internal/model/clan/member.go:46"
-	routePathMap["/clan/member/search-member"] = "internal/model/clan/member.go:83"
 	routePathMap["/clan/user/save"] = "internal/model/clan/user.go:27"
 	routePathMap["/clan/user/load"] = "internal/model/clan/user.go:54"
+	routePathMap["/clan/member/get-by-id"] = "internal/model/clan/member.go:59"
+	routePathMap["/clan/member/search-member"] = "internal/model/clan/member.go:96"
+	routePathMap["/clan/member/load"] = "internal/model/clan/member.go:118"
+	routePathMap["/clan/member/update"] = "internal/model/clan/member.go:135"
+	routePathMap["/clan/member/add-child"] = "internal/model/clan/member.go:207"
+	routePathMap["/clan/member/delete"] = "internal/model/clan/member.go:284"
 }
 

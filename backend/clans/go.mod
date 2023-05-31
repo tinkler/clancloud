@@ -5,8 +5,8 @@ go 1.20
 replace github.com/tinkler/mqttadmin => ../../../mqttadmin
 
 require (
-	github.com/go-chi/chi v1.5.4
 	github.com/go-chi/chi/v5 v5.0.8
+	github.com/google/uuid v1.3.0
 	github.com/google/wire v0.5.0
 	github.com/joho/godotenv v1.5.1
 	github.com/tinkler/mqttadmin v0.0.0-00010101000000-000000000000

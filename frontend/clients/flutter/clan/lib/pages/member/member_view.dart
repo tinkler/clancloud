@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:Clan/api/http_config.dart';
 import 'package:Clan/api/model/clans/clan.dart';
 import 'package:Clan/pages/member/member_detail.dart';
 import 'package:Clan/providers/user_provider.dart';
@@ -11,13 +12,13 @@ class MemberViewPage extends StatefulWidget {
   final Member member;
   const MemberViewPage({super.key, required this.member});
 
+  static const routeName = '/member/view';
+
   @override
   State<MemberViewPage> createState() => _MemberViewPageState();
 }
 
 class _MemberViewPageState extends State<MemberViewPage> {
-  late FToast fToast;
-
   bool _canEdit = false;
 
   _checkPermission() async {
@@ -30,35 +31,7 @@ class _MemberViewPageState extends State<MemberViewPage> {
   @override
   void initState() {
     super.initState();
-    fToast = FToast();
-    fToast.init(context);
     _checkPermission();
-  }
-
-  _showToast(String msg) {
-    Widget toast = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(25),
-        color: Colors.redAccent,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.lock),
-          const SizedBox(
-            width: 12,
-          ),
-          Text(msg, style: const TextStyle(color: Colors.white)),
-        ],
-      ),
-    );
-
-    fToast.showToast(
-      child: toast,
-      gravity: ToastGravity.BOTTOM,
-      toastDuration: const Duration(seconds: 2),
-    );
   }
 
   @override
@@ -72,7 +45,7 @@ class _MemberViewPageState extends State<MemberViewPage> {
                 onPressed: () {
                   Navigator.of(context).pushNamed(
                     MemberDetailPage.routeName,
-                    arguments: widget.member,
+                    arguments: {'member': widget.member, 'editable': true},
                   );
                 },
                 icon: const Icon(Icons.edit))
@@ -94,7 +67,7 @@ class _MemberViewPageState extends State<MemberViewPage> {
                   children: [
                     Card(
                       child: _AvatarFutureBuilder(
-                        widget.member.profilePicture,
+                        widget.member.memberProfile?.picPath ?? '',
                         sex: widget.member.sex,
                       ),
                     ),
@@ -131,7 +104,7 @@ class _MemberViewPageState extends State<MemberViewPage> {
                             MemberDetailPage.routeName,
                             arguments: widget.member);
                       } else {
-                        _showToast('请先绑定族谱');
+                        CToast.show('请先绑定族谱');
                       }
                     }),
                 _Button(
@@ -139,16 +112,42 @@ class _MemberViewPageState extends State<MemberViewPage> {
                     onPressed: () {
                       Navigator.of(context).pop<int>(widget.member.id);
                     }),
-                _Button(
-                    buttonText: '增加子女',
-                    onPressed: () {
-                      _showToast('未登录');
-                    }),
-                _Button(
-                    buttonText: '删除改节点',
-                    onPressed: () {
-                      _showToast('未登录');
-                    })
+                _canEdit
+                    ? _Button(
+                        buttonText: '增加子女',
+                        onPressed: () {
+                          Member child = Member();
+                          child.father = widget.member;
+                          Navigator.of(context).pushNamed(
+                              MemberDetailPage.routeName,
+                              arguments: {'member': child, 'editable': true});
+                        })
+                    : Container(),
+                _canEdit
+                    ? _Button(
+                        buttonText: '删除该节点',
+                        onPressed: () {
+                          if (widget.member.id ==
+                              UserProvider.of(context).user.memberId) {
+                            CToast.show('不能删除自己');
+
+                            return;
+                          }
+                          if (widget.member.children.isNotEmpty) {
+                            CToast.show('该节点有子节点，该权限不能删除');
+                            return;
+                          }
+                          widget.member.delete().then((value) {
+                            if (widget.member.id == 0) {
+                              UserProvider.of(context).loadEditList().then((e) {
+                                Navigator.of(context).pop();
+                              });
+                            } else {
+                              Fluttertoast.showToast(msg: '删除失败');
+                            }
+                          });
+                        })
+                    : Container()
               ],
             ),
           )
@@ -186,7 +185,7 @@ class _AvatarFutureBuilder extends StatelessWidget {
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(5),
           image: DecorationImage(
-            image: NetworkImage(profilePicture),
+            image: NetworkImage(basePicUrl + profilePicture),
             fit: BoxFit.cover,
           )),
     );
@@ -226,10 +225,18 @@ class _MemberField extends StatelessWidget {
   }
 }
 
-class _Button extends StatelessWidget {
+class _Button extends StatefulWidget {
   final String buttonText;
   final VoidCallback onPressed;
   const _Button({required this.buttonText, required this.onPressed});
+
+  @override
+  State<_Button> createState() => _ButtonState();
+}
+
+class _ButtonState extends State<_Button> {
+  bool _onPressed = false;
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -240,11 +247,35 @@ class _Button extends StatelessWidget {
           height: 45,
           margin: const EdgeInsets.fromLTRB(0, 5, 0, 0),
           child: ElevatedButton(
-            onPressed: onPressed,
+            onPressed: () async {
+              if (_onPressed) {
+                return;
+              }
+              setState(() {
+                _onPressed = true;
+              });
+              widget.onPressed();
+              setState(() {
+                _onPressed = false;
+              });
+            },
             style: ElevatedButton.styleFrom(
               textStyle: const TextStyle(fontSize: 18),
             ),
-            child: Text(buttonText),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _onPressed
+                    ? Container(
+                        margin: const EdgeInsets.only(right: 10),
+                        height: 20,
+                        width: 20,
+                        child: const CircularProgressIndicator(),
+                      )
+                    : Container(),
+                Text(widget.buttonText)
+              ],
+            ),
           ),
         ))
       ],

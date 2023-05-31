@@ -17,19 +17,61 @@ class SigninPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     UserProvider.of(context).resetUser();
-    return Scaffold(
-      body: Container(
-        width: 450,
-        decoration: const BoxDecoration(
-            image: DecorationImage(
-          alignment: Alignment.topLeft,
-          image: AssetImage('assets/images/signin_bg.png'),
-        )),
+    return const Scaffold(
+      body: _SigninWidget(),
+    );
+  }
+}
+
+class _SigninWidget extends StatefulWidget {
+  const _SigninWidget({super.key});
+
+  @override
+  State<_SigninWidget> createState() => _SigninWidgetState();
+}
+
+class _SigninWidgetState extends State<_SigninWidget>
+    with WidgetsBindingObserver {
+  bool _keyboardVisible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this); //销毁观察者
+    super.dispose();
+  }
+
+  @override
+  void didChangeMetrics() {
+    setState(() {
+      _keyboardVisible = View.of(context).viewInsets.bottom > 0.0;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 450,
+      decoration: BoxDecoration(
+          image: _keyboardVisible
+              ? null
+              : const DecorationImage(
+                  alignment: Alignment.topLeft,
+                  image: AssetImage('assets/images/signin_bg.png'),
+                )),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const SizedBox(
-              height: 240,
+            SizedBox(
+              height:
+                  _keyboardVisible ? MediaQuery.of(context).padding.top : 240,
             ),
             Text(
               '欢迎登录',

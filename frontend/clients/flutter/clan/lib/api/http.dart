@@ -62,7 +62,9 @@ class _ErrorInterceptor extends Interceptor {
           DioError(
             requestOptions: response.requestOptions,
           ),
-          response.data['cn_message'] ?? response.data['message']));
+          (response.data['cn_message'] as String).isNotEmpty
+              ? response.data['message']
+              : ''));
       return;
     }
     super.onResponse(response, handler);

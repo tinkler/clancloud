@@ -3,24 +3,31 @@ import 'dart:io';
 import 'package:Clan/const/text.dart';
 import 'package:Clan/pages/home/home_page.dart';
 import 'package:Clan/pages/member/member_detail.dart';
+import 'package:Clan/pages/member/member_view.dart';
 import 'package:Clan/pages/service/diagram/diagram.dart';
+import 'package:Clan/pages/service/me/my_clan_tree.dart';
 import 'package:Clan/pages/service/service_page.dart';
 import 'package:Clan/pages/signin/signin_page.dart';
 import 'package:Clan/pages/signup_page/signup_page.dart';
 import 'package:Clan/pages/welcome/welcome_page.dart';
 import 'package:Clan/providers/user_provider.dart';
+import 'package:Clan/utils/toast.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'api/http.dart';
 import 'api/model/clans/clan.dart';
 
 void main() async {
-  var path = '${Directory.current.path}/hive_data/';
+  WidgetsFlutterBinding.ensureInitialized();
+  final directory = await getApplicationDocumentsDirectory();
+  var path = '${directory.path}/hive_data/';
   Hive.init(path);
   GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   D.instance.initErrorInterceptor(navigatorKey);
+  CToast.setGlobalKey(navigatorKey);
   runApp(MainApp(navigatorKey: navigatorKey));
 }
 
@@ -48,27 +55,58 @@ class MainApp extends StatelessWidget {
                   fontWeight: FontWeight.bold),
             )),
         onGenerateRoute: (settings) {
-          return MaterialPageRoute(builder: (context) {
-            switch (settings.name) {
-              case DiagramPage.routeName:
+          switch (settings.name) {
+            case DiagramPage.routeName:
+              return MaterialPageRoute(builder: (context) {
                 return const DiagramPage();
-              case ServicePage.routeName:
+              });
+            case ServicePage.routeName:
+              return MaterialPageRoute(builder: (context) {
                 return const ServicePage();
-              case SigninPage.routeName:
+              });
+            case SigninPage.routeName:
+              return MaterialPageRoute(builder: (context) {
                 return const SigninPage();
-              case SignupPage.routeName:
+              });
+            case SignupPage.routeName:
+              return MaterialPageRoute(builder: (context) {
                 return const SignupPage();
-              case HomePage.routeName:
+              });
+            case HomePage.routeName:
+              return MaterialPageRoute(builder: (context) {
                 return const HomePage();
-              case MemberDetailPage.routeName:
+              });
+            case MemberDetailPage.routeName:
+              return MaterialPageRoute(builder: (context) {
                 if (settings.arguments is Member) {
                   return MemberDetailPage(member: settings.arguments as Member);
+                } else if (settings.arguments is Map<String, dynamic>) {
+                  var args = settings.arguments as Map<String, dynamic>;
+                  return MemberDetailPage(
+                      member: args['member'] as Member,
+                      editable: args['editable'] as bool);
                 }
                 throw Exception('MemberDetailPage arguments is not Member');
-              default:
+              });
+            case MyClanTree.routeName:
+              return MaterialPageRoute<bool>(builder: (context) {
+                if (settings.arguments is Member) {
+                  return MyClanTree(member: settings.arguments as Member);
+                }
+                throw Exception('MyClanTree arguments is not Member');
+              });
+            case MemberViewPage.routeName:
+              return MaterialPageRoute<int>(builder: (context) {
+                if (settings.arguments is Member) {
+                  return MemberViewPage(member: settings.arguments as Member);
+                }
+                throw Exception('MemberViewPage arguments is not Member');
+              });
+            default:
+              return MaterialPageRoute(builder: (context) {
                 return const WelcomePage();
-            }
-          });
+              });
+          }
         },
       ),
     );

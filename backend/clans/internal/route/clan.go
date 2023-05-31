@@ -12,6 +12,42 @@ import (
 func RoutesClan(m chi.Router) {
 	m.Route("/clan", func(r chi.Router) {
 		
+		r.Post("/user/save", func(w http.ResponseWriter, r *http.Request) {
+			m := Model[*clan.User, any]{}
+			err := sjson.Bind(r, &m)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			res := Res[*clan.User,any]{Data:m.Data}
+			err = m.Data.Save(r.Context())
+			
+			if status.HttpError(w, err) {
+				return
+			}
+			if sjson.HttpWrite(w, res) {
+				return
+			}
+
+		})
+		r.Post("/user/load", func(w http.ResponseWriter, r *http.Request) {
+			m := Model[*clan.User, any]{}
+			err := sjson.Bind(r, &m)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			res := Res[*clan.User,any]{Data:m.Data}
+			err = m.Data.Load(r.Context())
+			
+			if status.HttpError(w, err) {
+				return
+			}
+			if sjson.HttpWrite(w, res) {
+				return
+			}
+
+		})
 		r.Post("/member/get-by-id", func(w http.ResponseWriter, r *http.Request) {
 			m := Model[*clan.Member, struct{
 				Fdep int 
@@ -53,15 +89,15 @@ func RoutesClan(m chi.Router) {
 			}
 
 		})
-		r.Post("/user/save", func(w http.ResponseWriter, r *http.Request) {
-			m := Model[*clan.User, any]{}
+		r.Post("/member/load", func(w http.ResponseWriter, r *http.Request) {
+			m := Model[*clan.Member, any]{}
 			err := sjson.Bind(r, &m)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
-			res := Res[*clan.User,any]{Data:m.Data}
-			err = m.Data.Save(r.Context())
+			res := Res[*clan.Member,any]{Data:m.Data}
+			err = m.Data.Load(r.Context())
 			
 			if status.HttpError(w, err) {
 				return
@@ -71,15 +107,53 @@ func RoutesClan(m chi.Router) {
 			}
 
 		})
-		r.Post("/user/load", func(w http.ResponseWriter, r *http.Request) {
-			m := Model[*clan.User, any]{}
+		r.Post("/member/update", func(w http.ResponseWriter, r *http.Request) {
+			m := Model[*clan.Member, any]{}
 			err := sjson.Bind(r, &m)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
-			res := Res[*clan.User,any]{Data:m.Data}
-			err = m.Data.Load(r.Context())
+			res := Res[*clan.Member,any]{Data:m.Data}
+			err = m.Data.Update(r.Context())
+			
+			if status.HttpError(w, err) {
+				return
+			}
+			if sjson.HttpWrite(w, res) {
+				return
+			}
+
+		})
+		r.Post("/member/add-child", func(w http.ResponseWriter, r *http.Request) {
+			m := Model[*clan.Member, struct{
+				Child *clan.Member 
+				 } ]{}
+			err := sjson.Bind(r, &m)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			res := Res[*clan.Member,any]{Data:m.Data}
+			err = m.Data.AddChild(r.Context(), m.Args.Child, )
+			
+			if status.HttpError(w, err) {
+				return
+			}
+			if sjson.HttpWrite(w, res) {
+				return
+			}
+
+		})
+		r.Post("/member/delete", func(w http.ResponseWriter, r *http.Request) {
+			m := Model[*clan.Member, any]{}
+			err := sjson.Bind(r, &m)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			res := Res[*clan.Member,any]{Data:m.Data}
+			err = m.Data.Delete(r.Context())
 			
 			if status.HttpError(w, err) {
 				return

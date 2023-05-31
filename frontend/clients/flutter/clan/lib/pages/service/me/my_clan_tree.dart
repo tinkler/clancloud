@@ -8,6 +8,8 @@ class MyClanTree extends StatefulWidget {
   final Member member;
   const MyClanTree({super.key, required this.member});
 
+  static const routeName = '/me/clan_tree';
+
   @override
   State<MyClanTree> createState() => _MyClanTreeState();
 }
@@ -71,10 +73,9 @@ class _MyClanTreeState extends State<MyClanTree> {
                                     snapshot.data!,
                                     onTap: (m) async {
                                       int? id = await Navigator.of(context)
-                                          .push<int>(MaterialPageRoute(
-                                              builder: (context) {
-                                        return MemberViewPage(member: m);
-                                      }));
+                                          .pushNamed<int>(
+                                              MemberViewPage.routeName,
+                                              arguments: m);
                                       if (id != null) {
                                         if (id == 0) {
                                           id = widget.member.id;
@@ -82,7 +83,10 @@ class _MyClanTreeState extends State<MyClanTree> {
                                         setState(() {
                                           _currentMemberId = id!;
                                         });
+                                      } else {
+                                        setState(() {});
                                       }
+                                      return id;
                                     },
                                   );
                                 } else if (snapshot.hasError) {

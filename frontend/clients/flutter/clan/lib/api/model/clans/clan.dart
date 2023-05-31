@@ -3,129 +3,103 @@ import '../../http.dart';
 import './const.dart';
 
 
-class Member {
+class MemberGenerationRelationship {
+	
+	int mainId = 0;
+	
+	int spouseId = 0;
+	
+	int childId = 0;
+	
+	int childRecognizedGeneration = 0;
+	
+	int adoptedBy = 0;
+	
+	bool doubleAdopted = false;
+	
+	
+	MemberGenerationRelationship();
+
+	assign(MemberGenerationRelationship other) {
+		
+		mainId = other.mainId;
+		
+		spouseId = other.spouseId;
+		
+		childId = other.childId;
+		
+		childRecognizedGeneration = other.childRecognizedGeneration;
+		
+		adoptedBy = other.adoptedBy;
+		
+		doubleAdopted = other.doubleAdopted;
+		
+	}
+
+	Map<String, dynamic> toJson() {
+		return {
+			
+			"main_id": mainId,
+			
+			"spouse_id": spouseId,
+			
+			"child_id": childId,
+			
+			"child_recognized_generation": childRecognizedGeneration,
+			
+			"adopted_by": adoptedBy,
+			
+			"double_adopted": doubleAdopted,
+			
+		};
+	}
+	MemberGenerationRelationship.fromJson(Map<String, dynamic> json) {
+		
+		mainId = json["main_id"];
+		
+		spouseId = json["spouse_id"];
+		
+		childId = json["child_id"];
+		
+		childRecognizedGeneration = json["child_recognized_generation"];
+		
+		adoptedBy = json["adopted_by"];
+		
+		doubleAdopted = json["double_adopted"];
+		
+	}
+}
+
+class MemberProfile {
 	
 	int id = 0;
 	
-	String name = "";
+	String picPath = "";
 	
-	String surname = "";
+	String personalUrl = "";
 	
-	String nationality = "";
+	String homeplace = "";
 	
-	int sex = 0;
+	String address = "";
 	
-	String birthRecordsPrefix = "";
+	String telephone = "";
 	
-	String birthRecords = "";
 	
-	String birthPlace = "";
-	
-	String qualifications = "";
-	
-	int contribution = 0;
-	
-	int rank = 0;
-	
-	String introduction = "";
-	
-	int recognizaedGeneration = 0;
-	
-	int isMarray = 0;
-	
-	int isAlive = 0;
-	
-	String profilePicture = "";
-	
-	Member? spouse;
-	
-	List<Member> spouses = [];
-	
-	Member? father;
-	
-	List<Member> children = [];
-	
-	Future<void> getById(
-		int fdep,
-		int cdep,
-		
-	) async {
-		var response = await D.instance.dio.post('$modelUrlPrefix/clan/member/get-by-id', data: {
-			"data": toJson(),
-			"args": { "fdep": fdep,"cdep": cdep, }
-		});
-		if (response.data['code'] == 0) {
-			var respModel = Member.fromJson(response.data['data']['data']);
-			assign(respModel);
-			
-		}
-		
-	}
-	Future<List<Member>> searchMember(
-		String match,
-		
-	) async {
-		var response = await D.instance.dio.post('$modelUrlPrefix/clan/member/search-member', data: {
-			"data": toJson(),
-			"args": { "match": match, }
-		});
-		if (response.data['code'] == 0) {
-			var respModel = Member.fromJson(response.data['data']['data']);
-			assign(respModel);
-			if (response.data['data']['resp'] != null) {
-				return (response.data['data']['resp'] as List<dynamic>).map((e) => Member.fromJson(e)).toList();
-			} else {
-				return [];
-			}
-			
-		}
-		return [];
-		
-	}
-	
-	Member();
+	MemberProfile();
 
-	assign(Member other) {
+	assign(MemberProfile other) {
 		
 		id = other.id;
 		
-		name = other.name;
+		picPath = other.picPath;
 		
-		surname = other.surname;
+		personalUrl = other.personalUrl;
 		
-		nationality = other.nationality;
+		homeplace = other.homeplace;
 		
-		sex = other.sex;
+		address = other.address;
 		
-		birthRecordsPrefix = other.birthRecordsPrefix;
-		
-		birthRecords = other.birthRecords;
-		
-		birthPlace = other.birthPlace;
-		
-		qualifications = other.qualifications;
-		
-		contribution = other.contribution;
-		
-		rank = other.rank;
-		
-		introduction = other.introduction;
-		
-		recognizaedGeneration = other.recognizaedGeneration;
-		
-		isMarray = other.isMarray;
-		
-		isAlive = other.isAlive;
-		
-		profilePicture = other.profilePicture;
-		
-		spouse = other.spouse;
-		
-		spouses = other.spouses;
-		
-		father = other.father;
-		
-		children = other.children;
+		telephone = other.telephone;
 		
 	}
 
@@ -134,87 +108,31 @@ class Member {
 			
 			"id": id,
 			
-			"name": name,
+			"pic_path": picPath,
 			
-			"surname": surname,
+			"personal_url": personalUrl,
 			
-			"nationality": nationality,
+			"homeplace": homeplace,
 			
-			"sex": sex,
+			"address": address,
 			
-			"birth_records_prefix": birthRecordsPrefix,
-			
-			"birth_records": birthRecords,
-			
-			"birth_place": birthPlace,
-			
-			"qualifications": qualifications,
-			
-			"contribution": contribution,
-			
-			"rank": rank,
-			
-			"introduction": introduction,
-			
-			"recognizaed_generation": recognizaedGeneration,
-			
-			"is_marray": isMarray,
-			
-			"is_alive": isAlive,
-			
-			"profile_picture": profilePicture,
-			
-			"spouse": spouse != null ? spouse!.toJson() : null,
-			
-			"spouses": spouses.map((e) => e.toJson()).toList(),
-			
-			"father": father != null ? father!.toJson() : null,
-			
-			"children": children.map((e) => e.toJson()).toList(),
+			"telephone": telephone,
 			
 		};
 	}
-	Member.fromJson(Map<String, dynamic> json) {
+	MemberProfile.fromJson(Map<String, dynamic> json) {
 		
 		id = json["id"];
 		
-		name = json["name"];
+		picPath = json["pic_path"];
 		
-		surname = json["surname"];
+		personalUrl = json["personal_url"];
 		
-		nationality = json["nationality"];
+		homeplace = json["homeplace"];
 		
-		sex = json["sex"];
+		address = json["address"];
 		
-		birthRecordsPrefix = json["birth_records_prefix"];
-		
-		birthRecords = json["birth_records"];
-		
-		birthPlace = json["birth_place"];
-		
-		qualifications = json["qualifications"];
-		
-		contribution = json["contribution"];
-		
-		rank = json["rank"];
-		
-		introduction = json["introduction"];
-		
-		recognizaedGeneration = json["recognizaed_generation"];
-		
-		isMarray = json["is_marray"];
-		
-		isAlive = json["is_alive"];
-		
-		profilePicture = json["profile_picture"];
-		
-		spouse = json["spouse"] == null ? Member() : Member.fromJson(json["spouse"]);
-		
-		spouses = json["spouses"] == null ? [] : (json["spouses"] as List<dynamic>).map((e) => Member.fromJson(e)).toList();
-		
-		father = json["father"] == null ? Member() : Member.fromJson(json["father"]);
-		
-		children = json["children"] == null ? [] : (json["children"] as List<dynamic>).map((e) => Member.fromJson(e)).toList();
+		telephone = json["telephone"];
 		
 	}
 }
@@ -318,6 +236,300 @@ class User {
 		memberId = json["member_id"];
 		
 		roles = json["roles"] == null ? [] : (json["roles"] as List<dynamic>).map((e) => e as String).toList();
+		
+	}
+}
+
+class Member {
+	
+	int id = 0;
+	
+	String name = "";
+	
+	String surname = "";
+	
+	String nationality = "";
+	
+	int tagId = 0;
+	
+	int sex = 0;
+	
+	String birthRecordsPrefix = "";
+	
+	String birthRecords = "";
+	
+	String birthPlace = "";
+	
+	String qualifications = "";
+	
+	int contribution = 0;
+	
+	int rank = 0;
+	
+	String introduction = "";
+	
+	int recognizedGeneration = 0;
+	
+	int isMarry = 0;
+	
+	int isAlive = 0;
+	
+	MemberProfile? memberProfile;
+	
+	Member? spouse;
+	
+	List<Member> spouses = [];
+	
+	Member? father;
+	
+	List<Member> children = [];
+	
+	Future<void> getById(
+		int fdep,
+		int cdep,
+		
+	) async {
+		var response = await D.instance.dio.post('$modelUrlPrefix/clan/member/get-by-id', data: {
+			"data": toJson(),
+			"args": { "fdep": fdep,"cdep": cdep, }
+		});
+		if (response.data['code'] == 0) {
+			var respModel = Member.fromJson(response.data['data']['data']);
+			assign(respModel);
+			
+		}
+		
+	}
+	Future<List<Member>> searchMember(
+		String match,
+		
+	) async {
+		var response = await D.instance.dio.post('$modelUrlPrefix/clan/member/search-member', data: {
+			"data": toJson(),
+			"args": { "match": match, }
+		});
+		if (response.data['code'] == 0) {
+			var respModel = Member.fromJson(response.data['data']['data']);
+			assign(respModel);
+			if (response.data['data']['resp'] != null) {
+				return (response.data['data']['resp'] as List<dynamic>).map((e) => Member.fromJson(e)).toList();
+			} else {
+				return [];
+			}
+			
+		}
+		return [];
+		
+	}
+	Future<void> load(
+		
+	) async {
+		var response = await D.instance.dio.post('$modelUrlPrefix/clan/member/load', data: {
+			"data": toJson(),
+			"args": {  }
+		});
+		if (response.data['code'] == 0) {
+			var respModel = Member.fromJson(response.data['data']['data']);
+			assign(respModel);
+			
+		}
+		
+	}
+	
+	/// 更新所有不为空数据,请注意调用Load方法后更新值再调用此方法
+	Future<void> update(
+		
+	) async {
+		var response = await D.instance.dio.post('$modelUrlPrefix/clan/member/update', data: {
+			"data": toJson(),
+			"args": {  }
+		});
+		if (response.data['code'] == 0) {
+			var respModel = Member.fromJson(response.data['data']['data']);
+			assign(respModel);
+			
+		}
+		
+	}
+	
+	/// 新增子女
+	/// 子女信息未录(主键空),将验证信息合法性并录入
+	/// 子女信息已录(主键不空),以数据库查询结果为准
+	/// 兄弟姐妹排序须自行计算,可通过UpdateRank单独更新
+	Future<void> addChild(
+		Member? child,
+		
+	) async {
+		var response = await D.instance.dio.post('$modelUrlPrefix/clan/member/add-child', data: {
+			"data": toJson(),
+			"args": { "child": child, }
+		});
+		if (response.data['code'] == 0) {
+			var respModel = Member.fromJson(response.data['data']['data']);
+			assign(respModel);
+			
+		}
+		
+	}
+	
+	/// 将直接删除并删除联系
+	/// @feature 子女排序须自行修正
+	/// 子女将变成独立族谱
+	/// 不包括删除配偶
+	/// 删除前请进行判断作友好交互
+	Future<void> delete(
+		
+	) async {
+		var response = await D.instance.dio.post('$modelUrlPrefix/clan/member/delete', data: {
+			"data": toJson(),
+			"args": {  }
+		});
+		if (response.data['code'] == 0) {
+			var respModel = Member.fromJson(response.data['data']['data']);
+			assign(respModel);
+			
+		}
+		
+	}
+	
+	Member();
+
+	assign(Member other) {
+		
+		id = other.id;
+		
+		name = other.name;
+		
+		surname = other.surname;
+		
+		nationality = other.nationality;
+		
+		tagId = other.tagId;
+		
+		sex = other.sex;
+		
+		birthRecordsPrefix = other.birthRecordsPrefix;
+		
+		birthRecords = other.birthRecords;
+		
+		birthPlace = other.birthPlace;
+		
+		qualifications = other.qualifications;
+		
+		contribution = other.contribution;
+		
+		rank = other.rank;
+		
+		introduction = other.introduction;
+		
+		recognizedGeneration = other.recognizedGeneration;
+		
+		isMarry = other.isMarry;
+		
+		isAlive = other.isAlive;
+		
+		memberProfile = other.memberProfile;
+		
+		spouse = other.spouse;
+		
+		spouses = other.spouses;
+		
+		father = other.father;
+		
+		children = other.children;
+		
+	}
+
+	Map<String, dynamic> toJson() {
+		return {
+			
+			"id": id,
+			
+			"name": name,
+			
+			"surname": surname,
+			
+			"nationality": nationality,
+			
+			"tag_id": tagId,
+			
+			"sex": sex,
+			
+			"birth_records_prefix": birthRecordsPrefix,
+			
+			"birth_records": birthRecords,
+			
+			"birth_place": birthPlace,
+			
+			"qualifications": qualifications,
+			
+			"contribution": contribution,
+			
+			"rank": rank,
+			
+			"introduction": introduction,
+			
+			"recognized_generation": recognizedGeneration,
+			
+			"is_marry": isMarry,
+			
+			"is_alive": isAlive,
+			
+			"member_profile": memberProfile != null ? memberProfile!.toJson() : null,
+			
+			"spouse": spouse != null ? spouse!.toJson() : null,
+			
+			"spouses": spouses.map((e) => e.toJson()).toList(),
+			
+			"father": father != null ? father!.toJson() : null,
+			
+			"children": children.map((e) => e.toJson()).toList(),
+			
+		};
+	}
+	Member.fromJson(Map<String, dynamic> json) {
+		
+		id = json["id"];
+		
+		name = json["name"];
+		
+		surname = json["surname"];
+		
+		nationality = json["nationality"];
+		
+		tagId = json["tag_id"];
+		
+		sex = json["sex"];
+		
+		birthRecordsPrefix = json["birth_records_prefix"];
+		
+		birthRecords = json["birth_records"];
+		
+		birthPlace = json["birth_place"];
+		
+		qualifications = json["qualifications"];
+		
+		contribution = json["contribution"];
+		
+		rank = json["rank"];
+		
+		introduction = json["introduction"];
+		
+		recognizedGeneration = json["recognized_generation"];
+		
+		isMarry = json["is_marry"];
+		
+		isAlive = json["is_alive"];
+		
+		memberProfile = json["member_profile"] == null ? MemberProfile() : MemberProfile.fromJson(json["member_profile"]);
+		
+		spouse = json["spouse"] == null ? Member() : Member.fromJson(json["spouse"]);
+		
+		spouses = json["spouses"] == null ? [] : (json["spouses"] as List<dynamic>).map((e) => Member.fromJson(e)).toList();
+		
+		father = json["father"] == null ? Member() : Member.fromJson(json["father"]);
+		
+		children = json["children"] == null ? [] : (json["children"] as List<dynamic>).map((e) => Member.fromJson(e)).toList();
 		
 	}
 }

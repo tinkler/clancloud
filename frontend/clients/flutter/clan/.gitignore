@@ -45,3 +45,4 @@ app.*.map.json
 
 
 /lib/api/http_config.dart
+/hive_data
