@@ -62,6 +62,7 @@ class _WelcomePageState extends State<WelcomePage> {
   _showDialog(bool toSignin) {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return _AgreementDialog(
           toSignin: toSignin,

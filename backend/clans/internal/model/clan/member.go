@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"errors"
+
 	"github.com/google/uuid"
 	"github.com/tinkler/mqttadmin/pkg/db"
 	"github.com/tinkler/mqttadmin/pkg/jsonz/sjson"
@@ -34,6 +36,7 @@ type Member struct {
 	RecognizedGeneration int
 	IsMarry              int
 	IsAlive              int
+	PicPath              string         `gorm:"-"`
 	MemberProfile        *MemberProfile `gorm:"foreignKey:ID;references:ID"`
 	Spouse               *Member        `gorm:"-"`
 	Spouses              []*Member      `gorm:"-"`
@@ -51,6 +54,7 @@ type memberData struct {
 	Surname  string
 	Sex      int
 	Rank     int
+	PicPath  string
 	Father   string
 	Children string
 	Spouses  string
@@ -70,6 +74,7 @@ func (m *Member) GetByID(ctx context.Context, fdep int, cdep int) error {
 	m.Name = data[0].Name
 	m.Sex = data[0].Sex
 	m.Rank = data[0].Rank
+	m.PicPath = strings.ReplaceAll(data[0].PicPath, " ", "")
 	if data[0].Father != "" {
 		m.Father = &Member{}
 		err := sjson.Unmarshal([]byte(data[0].Father), m.Father)
@@ -128,6 +133,11 @@ func (m *Member) Load(ctx context.Context) error {
 	if se.Error != nil {
 		return se.Error
 	}
+	m.MemberProfile = &MemberProfile{ID: m.ID}
+	se = db.DB().Take(m.MemberProfile)
+	if se.Error != nil {
+		return se.Error
+	}
 	return nil
 }
 
@@ -183,17 +193,30 @@ func (m *Member) UploadProfilePicture(ctx context.Context, file multipart.File, 
 		return err
 	}
 	dstFile.Close()
-	se := db.DB().Model(&MemberProfile{}).Where("id = ?", m.ID).Update("pic_path", filePath)
+	se := db.DB().First(&MemberProfile{ID: m.ID})
 	if se.Error != nil {
-		logger.Error(se.Error)
-		err := os.Remove(staticPath)
-		if !os.IsNotExist(err) {
-			logger.Error(err)
+		if errors.Is(se.Error, gorm.ErrRecordNotFound) {
+			// create
+			if err := db.DB().Create(&MemberProfile{ID: m.ID, PicPath: filePath}).Error; err != nil {
+				logger.Error(err)
+				err = os.Remove(staticPath)
+				if !os.IsNotExist(err) {
+					logger.Error(err)
+				}
+				return err
+			}
+		} else {
+			logger.Error(se.Error)
+			err := os.Remove(staticPath)
+			if !os.IsNotExist(err) {
+				logger.Error(err)
+			}
+			return se.Error
 		}
-		return se.Error
+
 	}
 	if m.MemberProfile == nil {
-		m.MemberProfile = &MemberProfile{}
+		m.MemberProfile = &MemberProfile{ID: m.ID}
 	}
 	m.MemberProfile.PicPath = filePath
 

@@ -274,6 +274,8 @@ class Member {
 	
 	int isAlive = 0;
 	
+	String picPath = "";
+	
 	MemberProfile? memberProfile;
 	
 	Member? spouse;
@@ -428,6 +430,8 @@ class Member {
 		
 		isAlive = other.isAlive;
 		
+		picPath = other.picPath;
+		
 		memberProfile = other.memberProfile;
 		
 		spouse = other.spouse;
@@ -475,6 +479,8 @@ class Member {
 			
 			"is_alive": isAlive,
 			
+			"pic_path": picPath,
+			
 			"member_profile": memberProfile != null ? memberProfile!.toJson() : null,
 			
 			"spouse": spouse != null ? spouse!.toJson() : null,
@@ -520,6 +526,8 @@ class Member {
 		isMarry = json["is_marry"];
 		
 		isAlive = json["is_alive"];
+		
+		picPath = json["pic_path"];
 		
 		memberProfile = json["member_profile"] == null ? MemberProfile() : MemberProfile.fromJson(json["member_profile"]);
 		

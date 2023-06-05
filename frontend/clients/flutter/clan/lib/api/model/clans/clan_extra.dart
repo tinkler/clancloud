@@ -2,19 +2,17 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../http.dart';
 import './const.dart';
 import './clan.dart';
 
 extension UploadProfilePicture on Member {
-  Future<void> uploadProfilePicture() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-      allowedExtensions: ['jpg', 'png', 'jpeg', 'gif'],
-    );
+  Future<void> uploadProfilePicture(ImageSource source) async {
+    final XFile? result = await ImagePicker().pickImage(source: source);
     if (result == null) return;
-    File file = File(result.files.single.path!);
+    File file = File(result.path);
     FormData formData = FormData.fromMap({
       "member_id": id,
       "uploads": await MultipartFile.fromFile(file.path,

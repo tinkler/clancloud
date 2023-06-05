@@ -125,7 +125,7 @@ class _SigninFormState extends State<_SigninForm> {
           toHome();
           return;
         }
-      } on Exception catch (e) {
+      } catch (e) {
         fToast.showCustomToast(e.toString());
         setState(() {
           _loading = false;

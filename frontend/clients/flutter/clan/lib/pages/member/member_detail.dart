@@ -3,6 +3,8 @@ import 'package:Clan/api/model/clans/clan_extra.dart';
 import 'package:Clan/api/model/mqtt/user.dart';
 import 'package:Clan/utils/toast.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../api/http_config.dart';
 import '../../providers/user_provider.dart';
@@ -119,119 +121,190 @@ class __MemberDetailState extends State<_MemberDetail> {
     });
   }
 
+  _uploadPicture(ImageSource source) async {
+    if (widget.member.id == 0) {
+      CToast.show('新增子女,请先保存再上传图片');
+      return;
+    }
+    if (_pictureUploading) return;
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.storage,
+      Permission.camera,
+    ].request();
+    if (statuses[Permission.storage] == PermissionStatus.denied) {
+      CToast.show('需要授权存储权限才能使用该功能');
+      return;
+    }
+    if (statuses[Permission.camera] == PermissionStatus.denied) {
+      CToast.show('需要授权拍照权限才能使用该功能');
+      return;
+    }
+    setState(() {
+      _pictureUploading = true;
+    });
+    try {
+      await widget.member.uploadProfilePicture(source);
+    } catch (e) {
+      print(e);
+      CToast.show('无法选取图片');
+    }
+
+    setState(() {
+      _pictureUploading = false;
+    });
+  }
+
+  _showUploadButton() {
+    Scaffold.of(context).showBottomSheet((context) {
+      return GestureDetector(
+        onTap: () {
+          Navigator.pop(context);
+        },
+        child: Container(
+          color: Colors.transparent,
+          width: double.infinity,
+          height: double.infinity,
+          alignment: Alignment.bottomCenter,
+          child: SizedBox(
+            height: 100,
+            width: MediaQuery.of(context).size.width / 3 * 2,
+            child: Column(
+              children: [
+                ElevatedButton(
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                      _uploadPicture(ImageSource.camera);
+                    },
+                    child: Container(
+                      alignment: Alignment.center,
+                      width: double.infinity,
+                      child: const Text('拍照'),
+                    )),
+                ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      _uploadPicture(ImageSource.gallery);
+                    },
+                    child: Container(
+                      alignment: Alignment.center,
+                      width: double.infinity,
+                      child: const Text('相册选取'),
+                    ))
+              ],
+            ),
+          ),
+        ),
+      );
+    }, backgroundColor: Colors.transparent, elevation: 0);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final double picWidth = MediaQuery.of(context).size.width / 2;
+    final double picHeight = picWidth / 3 * 4;
     if (_loading) {
       return const Center(
         child: CircularProgressIndicator(),
       );
     }
-    return Column(
-      children: [
-        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          GestureDetector(
-            onTap: () async {
-              if (widget.member.id == 0) {
-                CToast.show('新增子女,请先保存再上传图片');
-                return;
-              }
-              if (_pictureUploading) return;
-              setState(() {
-                _pictureUploading = true;
-              });
-              await widget.member.uploadProfilePicture();
-              setState(() {
-                _pictureUploading = false;
-              });
-            },
-            child: Container(
-                width: 300,
-                height: 400,
-                margin: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: widget.member.memberProfile != null &&
-                        widget.member.memberProfile!.picPath != ''
-                    ? Image.network(
-                        basePicUrl + widget.member.memberProfile!.picPath,
-                        errorBuilder: (context, obj, st) {
-                          return const Center(
-                            child: Text('图片加载失败'),
-                          );
-                        },
-                      )
-                    : Container()),
-          ),
-          Expanded(
-              child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _EditableTextWidget(
-                  label: '名字',
-                  initialValue: widget.member.name,
-                  editable: widget.editable,
-                  onchange: (newName) {
-                    widget.member.name = newName;
-                  },
-                ),
-                _EditableTextWidget(
-                    label: '名族',
-                    initialValue: widget.member.nationality,
-                    editable: widget.editable,
-                    onchange: (newNationality) {
-                      widget.member.nationality = newNationality;
-                    }),
-                _TextWidget(
-                  label: '${widget.member.recognizedGeneration.toString()}代',
-                  editable: widget.editable,
-                ),
-                _EditableTextWidget(
-                  label: '出生年月',
-                  initialValue: widget.member.birthRecords,
-                  editable: widget.editable,
-                  onchange: (newBirthRecords) {
-                    widget.member.birthRecords = newBirthRecords;
-                  },
-                ),
-                _EditableTextWidget(
-                  label: '毕业院校',
-                  initialValue: widget.member.qualifications,
-                  editable: widget.editable,
-                  onchange: (newQualifications) {
-                    widget.member.qualifications = newQualifications;
-                  },
-                ),
-                _EditableSelectWidget<int>(
-                  label: '性别',
-                  options: setList,
-                  initialValue: _getSexOption(widget.member.sex),
-                  editable: widget.editable,
-                  onchange: (newSex) {
-                    widget.member.sex = newSex;
-                  },
-                )
-              ],
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: Column(
+        children: [
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            GestureDetector(
+              onTap: widget.editable ? _showUploadButton : null,
+              child: Container(
+                  width: picWidth,
+                  height: picHeight,
+                  margin: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: widget.member.memberProfile != null &&
+                          widget.member.memberProfile!.picPath != ''
+                      ? Image.network(
+                          basePicUrl + widget.member.memberProfile!.picPath,
+                          errorBuilder: (context, obj, st) {
+                            return const Center(
+                              child: Text('图片加载失败'),
+                            );
+                          },
+                        )
+                      : Container()),
             ),
-          ))
-        ]),
-        Expanded(
-            child: Container(
-                width: double.infinity,
-                margin: const EdgeInsets.all(10),
-                child: _EditableTextWidget(
-                  label: '简介',
-                  initialValue: widget.member.introduction,
-                  editable: widget.editable,
-                  onchange: (newIntroduction) {
-                    widget.member.introduction = newIntroduction;
-                  },
-                  multiline: true,
-                ))),
-      ],
+            Container(
+              width: picWidth - 20,
+              padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _EditableTextWidget(
+                    label: '名字',
+                    initialValue: widget.member.name,
+                    editable: widget.editable,
+                    onchange: (newName) {
+                      widget.member.name = newName;
+                    },
+                  ),
+                  _EditableTextWidget(
+                      label: '名族',
+                      initialValue: widget.member.nationality,
+                      editable: widget.editable,
+                      onchange: (newNationality) {
+                        widget.member.nationality = newNationality;
+                      }),
+                  _TextWidget(
+                    label: '${widget.member.recognizedGeneration.toString()}代',
+                    editable: widget.editable,
+                  ),
+                  _EditableTextWidget(
+                    label: '出生年月',
+                    initialValue: widget.member.birthRecords,
+                    editable: widget.editable,
+                    onchange: (newBirthRecords) {
+                      widget.member.birthRecords = newBirthRecords;
+                    },
+                  ),
+                  _EditableTextWidget(
+                    label: '毕业院校',
+                    initialValue: widget.member.qualifications,
+                    editable: widget.editable,
+                    onchange: (newQualifications) {
+                      widget.member.qualifications = newQualifications;
+                    },
+                  ),
+                  _EditableSelectWidget<int>(
+                    label: '性别',
+                    options: setList,
+                    initialValue: _getSexOption(widget.member.sex),
+                    editable: widget.editable,
+                    onchange: (newSex) {
+                      widget.member.sex = newSex;
+                    },
+                  )
+                ],
+              ),
+            )
+          ]),
+          Container(
+              width: MediaQuery.of(context).size.width,
+              constraints: const BoxConstraints(
+                minHeight: 300,
+              ),
+              margin: const EdgeInsets.all(10),
+              child: _EditableTextWidget(
+                label: '简介',
+                initialValue: widget.member.introduction,
+                editable: widget.editable,
+                onchange: (newIntroduction) {
+                  widget.member.introduction = newIntroduction;
+                },
+                multiline: true,
+              )),
+        ],
+      ),
     );
   }
 }

@@ -2,7 +2,6 @@ import 'package:Clan/api/model/clans/clan.dart';
 import 'package:Clan/providers/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:Clan/api/model/mqtt/user.dart' as $mqtt_user;
 
 class UserProvider extends StatefulWidget {
   final Widget? child;
