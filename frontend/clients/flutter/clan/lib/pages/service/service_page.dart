@@ -1,3 +1,4 @@
+import 'package:Clan/pages/service/memorial/memorial_page.dart';
 import 'package:flutter/material.dart';
 
 class Service {
@@ -22,7 +23,11 @@ class _ServicePageState extends State<ServicePage> {
     Service(
         titleText: '吊线图',
         name: '/service/diagram',
-        titleImage: 'assets/images/diagram.png')
+        titleImage: 'assets/images/diagram.png'),
+    Service(
+        titleText: '纪念堂',
+        name: MemorialPage.routeName,
+        titleImage: 'assets/images/memorial.png')
   ];
 
   @override

@@ -1,7 +1,5 @@
 import 'package:Clan/api/model/clans/clan.dart';
 import 'package:Clan/pages/member/member_search.dart';
-import 'package:Clan/api/http.dart';
-import 'package:Clan/providers/user_provider.dart';
 import 'package:Clan/widgets/clan_tree.dart';
 import 'package:flutter/material.dart';
 
@@ -83,6 +81,7 @@ class _DiagramPageState extends State<DiagramPage> {
                                     _currentMemberId = id!;
                                   });
                                 }
+                                return null;
                               },
                             );
                           } else if (snapshot.hasError) {

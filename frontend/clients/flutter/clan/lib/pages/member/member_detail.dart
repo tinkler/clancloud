@@ -1,6 +1,5 @@
 import 'package:Clan/api/model/clans/clan.dart';
 import 'package:Clan/api/model/clans/clan_extra.dart';
-import 'package:Clan/api/model/mqtt/user.dart';
 import 'package:Clan/utils/toast.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -21,22 +20,22 @@ class MemberDetailPage extends StatelessWidget {
 
   _save(BuildContext context) {
     if (member.name.isEmpty) {
-      CToast.show('名字不能为空');
+      CToast.showErr('名字不能为空');
       return;
     }
     if (member.id == 0 && member.father != null) {
       if (member.father!.surname.isEmpty) {
-        CToast.show('父亲姓氏不能为空');
+        CToast.showErr('父亲姓氏不能为空');
         return;
       }
       if (member.father!.recognizedGeneration == 0) {
-        CToast.show('父亲代数不能为0');
+        CToast.showErr('父亲代数不能为0');
         return;
       }
     }
 
     if (member.nationality.isEmpty) {
-      CToast.show('名族不能为空');
+      CToast.showErr('名族不能为空');
       return;
     }
 
@@ -46,16 +45,16 @@ class MemberDetailPage extends StatelessWidget {
           UserProvider.of(context).loadEditList();
           Navigator.of(context).pop();
         }, onError: (e) {
-          CToast.show('新增失败');
+          CToast.showErr('新增失败');
         });
       } else {
-        CToast.show('未保存');
+        CToast.showErr('未保存');
       }
     } else {
       member.update().then((v) {
         Navigator.of(context).pop();
       }, onError: (e) {
-        CToast.show('保存失败');
+        CToast.showErr('保存失败');
       });
     }
   }
@@ -123,7 +122,7 @@ class __MemberDetailState extends State<_MemberDetail> {
 
   _uploadPicture(ImageSource source) async {
     if (widget.member.id == 0) {
-      CToast.show('新增子女,请先保存再上传图片');
+      CToast.showErr('新增子女,请先保存再上传图片');
       return;
     }
     if (_pictureUploading) return;
@@ -132,11 +131,11 @@ class __MemberDetailState extends State<_MemberDetail> {
       Permission.camera,
     ].request();
     if (statuses[Permission.storage] == PermissionStatus.denied) {
-      CToast.show('需要授权存储权限才能使用该功能');
+      CToast.showErr('需要授权存储权限才能使用该功能');
       return;
     }
     if (statuses[Permission.camera] == PermissionStatus.denied) {
-      CToast.show('需要授权拍照权限才能使用该功能');
+      CToast.showErr('需要授权拍照权限才能使用该功能');
       return;
     }
     setState(() {
@@ -146,7 +145,7 @@ class __MemberDetailState extends State<_MemberDetail> {
       await widget.member.uploadProfilePicture(source);
     } catch (e) {
       print(e);
-      CToast.show('无法选取图片');
+      CToast.showErr('无法选取图片');
     }
 
     setState(() {

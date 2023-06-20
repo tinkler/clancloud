@@ -1,0 +1,6 @@
+dir: ./pkg/model
+codes:
+  - typ: proto
+    out_dir: ./api/proto
+  - typ: gsrv
+    out_dir: ./pkg/gsrv

@@ -135,7 +135,7 @@ func (m *Member) Load(ctx context.Context) error {
 	}
 	m.MemberProfile = &MemberProfile{ID: m.ID}
 	se = db.DB().Take(m.MemberProfile)
-	if se.Error != nil {
+	if se.Error != nil && !errors.Is(se.Error, gorm.ErrRecordNotFound) {
 		return se.Error
 	}
 	return nil

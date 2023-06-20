@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:Clan/api/http_config.dart';
 import 'package:Clan/api/model/clans/clan.dart';
 import 'package:Clan/pages/member/member_detail.dart';
@@ -104,7 +102,7 @@ class _MemberViewPageState extends State<MemberViewPage> {
                             MemberDetailPage.routeName,
                             arguments: widget.member);
                       } else {
-                        CToast.show('请先绑定族谱');
+                        CToast.showErr('请先绑定族谱');
                       }
                     }),
                 _Button(
@@ -129,12 +127,12 @@ class _MemberViewPageState extends State<MemberViewPage> {
                         onPressed: () {
                           if (widget.member.id ==
                               UserProvider.of(context).user.memberId) {
-                            CToast.show('不能删除自己');
+                            CToast.showErr('不能删除自己');
 
                             return;
                           }
                           if (widget.member.children.isNotEmpty) {
-                            CToast.show('该节点有子节点，该权限不能删除');
+                            CToast.showErr('该节点有子节点，该权限不能删除');
                             return;
                           }
                           widget.member.delete().then((value) {

@@ -23,7 +23,7 @@ class SignupPage extends StatelessWidget {
 }
 
 class _SignupWidget extends StatefulWidget {
-  const _SignupWidget({super.key});
+  const _SignupWidget();
 
   @override
   State<_SignupWidget> createState() => __SignupWidgetState();

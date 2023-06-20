@@ -1,17 +1,20 @@
-import 'dart:io';
-
+import 'package:Clan/api/model/memorial/memorial.dart';
 import 'package:Clan/const/text.dart';
 import 'package:Clan/pages/home/home_page.dart';
 import 'package:Clan/pages/member/member_detail.dart';
 import 'package:Clan/pages/member/member_view.dart';
 import 'package:Clan/pages/service/diagram/diagram.dart';
 import 'package:Clan/pages/service/me/my_clan_tree.dart';
+import 'package:Clan/pages/service/memorial/memorial_edit.dart';
+import 'package:Clan/pages/service/memorial/memorial_page.dart';
+import 'package:Clan/pages/service/memorial/memorial_view.dart';
 import 'package:Clan/pages/service/service_page.dart';
 import 'package:Clan/pages/signin/signin_page.dart';
 import 'package:Clan/pages/signup_page/signup_page.dart';
 import 'package:Clan/pages/welcome/welcome_page.dart';
 import 'package:Clan/providers/user_provider.dart';
 import 'package:Clan/utils/toast.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -22,8 +25,11 @@ import 'api/model/clans/clan.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final directory = await getApplicationDocumentsDirectory();
-  var path = '${directory.path}/hive_data/';
+  String directory = '';
+  if (!kIsWeb) {
+    directory = (await getApplicationDocumentsDirectory()).path;
+  }
+  var path = '$directory/hive_data/';
   Hive.init(path);
   GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   D.instance.initErrorInterceptor(navigatorKey);
@@ -56,14 +62,34 @@ class MainApp extends StatelessWidget {
             )),
         onGenerateRoute: (settings) {
           switch (settings.name) {
-            case DiagramPage.routeName:
-              return MaterialPageRoute(builder: (context) {
-                return const DiagramPage();
-              });
             case ServicePage.routeName:
               return MaterialPageRoute(builder: (context) {
                 return const ServicePage();
               });
+            case DiagramPage.routeName:
+              return MaterialPageRoute(builder: (context) {
+                return const DiagramPage();
+              });
+            case MemorialPage.routeName:
+              return MaterialPageRoute(builder: (context) {
+                return const MemorialPage();
+              });
+            case MemorialViewPage.routeName:
+              if (settings.arguments is Memorial) {
+                return MaterialPageRoute(builder: (context) {
+                  return MemorialViewPage(
+                      memorial: settings.arguments as Memorial);
+                });
+              }
+              throw Exception('MemberDetailPage arguments is not Memorial');
+            case MemorialEditPage.routeName:
+              if (settings.arguments is Memorial) {
+                return MaterialPageRoute(builder: (context) {
+                  return MemorialEditPage(
+                      memorial: settings.arguments as Memorial);
+                });
+              }
+              throw Exception('MemberEditPage arguments is not Memorial');
             case SigninPage.routeName:
               return MaterialPageRoute(builder: (context) {
                 return const SigninPage();

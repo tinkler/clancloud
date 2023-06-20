@@ -79,18 +79,15 @@ enum _InputStep {
 class _BindingInput extends StatefulWidget {
   final ValueChanged<Member> onChange;
   final Member member;
-  final _InputStep step;
-  _BindingInput(
-      {required this.onChange,
-      required this.member,
-      this.step = _InputStep.MyName});
+
+  const _BindingInput({required this.onChange, required this.member});
 
   @override
   State<_BindingInput> createState() => __BindingInputState();
 }
 
 class __BindingInputState extends State<_BindingInput> {
-  late _InputStep _step;
+  late _InputStep _step = _InputStep.MyName;
   late Member _member;
   bool _found = false;
   bool _searching = false;
@@ -98,7 +95,6 @@ class __BindingInputState extends State<_BindingInput> {
   @override
   void initState() {
     super.initState();
-    _step = widget.step;
     _member = widget.member;
   }
 

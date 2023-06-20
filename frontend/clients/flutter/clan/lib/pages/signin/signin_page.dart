@@ -24,7 +24,7 @@ class SigninPage extends StatelessWidget {
 }
 
 class _SigninWidget extends StatefulWidget {
-  const _SigninWidget({super.key});
+  const _SigninWidget();
 
   @override
   State<_SigninWidget> createState() => _SigninWidgetState();

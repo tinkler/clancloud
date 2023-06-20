@@ -1,4 +1,3 @@
-import 'package:Clan/api/model/mqtt/user.dart' as $mqttUser;
 import 'package:Clan/api/model/clans/clan.dart';
 import 'package:Clan/const/hive.dart';
 import 'package:Clan/providers/user_model.dart';
@@ -70,6 +69,13 @@ class _MePageState extends State<MePage> {
                 ),
                 child: ListView(
                   children: [
+                    model.canAccess3()
+                        ? ListTile(
+                            title: const Text('文章管理'),
+                            trailing: const Icon(Icons.arrow_forward_ios),
+                            onTap: () {},
+                          )
+                        : Container(),
                     model.user.memberId != 0
                         ? ListTile(
                             title: const Text('查看我的族谱'),

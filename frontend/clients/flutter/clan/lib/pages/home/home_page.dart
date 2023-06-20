@@ -1,6 +1,5 @@
 import 'package:Clan/pages/service/me_page.dart';
 import 'package:Clan/pages/service/service_page.dart';
-import 'package:Clan/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 
 class HomeTabItem {

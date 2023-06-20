@@ -4,7 +4,7 @@ class ClassicBackgroundPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     // Define the gradient colors and stops
-    final gradient = LinearGradient(
+    const gradient = LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
       colors: [
@@ -23,7 +23,7 @@ class ClassicBackgroundPainter extends CustomPainter {
 
     // Draw a border around the rectangle
     final borderPaint = Paint()
-      ..color = Color(0xff493B2A)
+      ..color = const Color(0xff493B2A)
       ..strokeWidth = 8.0
       ..style = PaintingStyle.stroke;
     canvas.drawRect(
@@ -33,19 +33,19 @@ class ClassicBackgroundPainter extends CustomPainter {
 
     // Draw some beautiful decorations
     final redCirclePaint = Paint()
-      ..color = Color(0xffEC5F67)
+      ..color = const Color(0xffEC5F67)
       ..style = PaintingStyle.fill;
     canvas.drawCircle(
         Offset(size.width * 0.25, size.height * 0.25), 40.0, redCirclePaint);
 
     final yellowCirclePaint = Paint()
-      ..color = Color(0xffF3B143)
+      ..color = const Color(0xffF3B143)
       ..style = PaintingStyle.fill;
     canvas.drawCircle(
         Offset(size.width * 0.75, size.height * 0.25), 40.0, yellowCirclePaint);
 
     final blueSquarePaint = Paint()
-      ..color = Color(0xff3BAFDA)
+      ..color = const Color(0xff3BAFDA)
       ..style = PaintingStyle.fill;
     canvas.drawRect(
       Rect.fromCenter(

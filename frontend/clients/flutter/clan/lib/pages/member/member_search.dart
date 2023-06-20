@@ -1,8 +1,5 @@
 import 'package:Clan/api/model/clans/clan.dart';
-import 'package:Clan/api/http.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 import '../../widgets/clan_tree.dart';
@@ -108,6 +105,7 @@ class _MemberSearchPageState extends State<MemberSearchPage> {
                                       _currentMemberId = id;
                                     });
                                   }
+                                  return null;
                                 },
                               );
                             } else if (snapshot.hasError) {

@@ -470,8 +470,8 @@ class TreeLinePainter extends CustomPainter {
 }
 
 class _TreeState {
-  bool hasSisterOrBrother;
-  _TreeState({this.hasSisterOrBrother = false});
+  bool hasSisterOrBrother = false;
+  _TreeState();
 }
 
 enum Position {

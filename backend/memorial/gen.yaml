@@ -1,0 +1,6 @@
+dir: ./internal/model
+codes:
+  - typ: chi_route
+    out_dir: ./internal/route
+  - typ: dart
+    out_dir: ../../frontend/clients/flutter/clan/lib/api/model/memorial

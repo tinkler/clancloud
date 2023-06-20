@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:Clan/providers/user_provider.dart';
 import 'package:Clan/widgets/agreement_widget.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -23,7 +24,7 @@ class WelcomePage extends StatefulWidget {
 class _WelcomePageState extends State<WelcomePage> {
   final Connectivity _connectivity = Connectivity();
   late StreamSubscription<ConnectivityResult> _connectivitySubscription;
-  String _message = '加载网络中...';
+  final String _message = '加载网络中...';
   bool _loading = false;
   String? _error;
 
@@ -44,7 +45,7 @@ class _WelcomePageState extends State<WelcomePage> {
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
       result = await _connectivity.checkConnectivity();
-    } on PlatformException catch (e) {
+    } on PlatformException {
       _error = 'Couldn\'t check connectivity status';
       return;
     }
@@ -93,12 +94,17 @@ class _WelcomePageState extends State<WelcomePage> {
         ..token = token;
       try {
         await auth.quickSignin();
-        await Hive.openBox<String>(boxSys).then((value) {
-          value.put(boxValSysToken, auth.token);
-          value.put(boxValSysDeviceToken, auth.deviceToken);
-        });
+        await sysBox.put(boxValSysToken, auth.token);
+        await sysBox.put(boxValSysDeviceToken, auth.deviceToken);
+
+        final agree =
+            sysBox.get(boxValSysAgree, defaultValue: 'false')! == 'true';
         _loading = false;
-        if (Platform.isAndroid || Platform.isIOS) {
+        if (kIsWeb) {
+          toHome();
+          return;
+        }
+        if ((Platform.isAndroid || Platform.isIOS) && !agree) {
           _showDialog(false);
         } else {
           toHome();
@@ -109,6 +115,10 @@ class _WelcomePageState extends State<WelcomePage> {
       }
     }
     _loading = false;
+    if (kIsWeb) {
+      toSigin();
+      return;
+    }
     if (Platform.isAndroid || Platform.isIOS) {
       _showDialog(true);
     } else {
@@ -177,7 +187,7 @@ class _AgreementDialog extends StatelessWidget {
             GestureDetector(
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return AgreementWidget();
+                  return const AgreementWidget();
                 }));
               },
               child: const Text("请仔细阅读《中华覃氏用户协议及隐私政策》"),
@@ -189,6 +199,9 @@ class _AgreementDialog extends StatelessWidget {
         TextButton(
           child: const Text("同意"),
           onPressed: () {
+            Hive.openBox<String>(boxSys).then((box) {
+              box.put(boxValSysAgree, 'true');
+            });
             if (toSignin) {
               UserProvider.of(context).setSignedIn(false).then((value) {
                 Navigator.pushNamedAndRemoveUntil(
